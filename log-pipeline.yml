@@ -57,16 +57,23 @@ services:
     environment:
       SERVER_NAME: kibana
       ELASTICSEARCH_PINGTIMEOUT: 1000
+      KEYSTONE_URI: http://192.168.10.6/identity
+      KEYSTONE_ADMIN_USER: admin
+      KEYSTONE_ADMIN_PASSWORD: secretadmin
     depends_on:
       - elasticsearch
-      - keystone
+      # - keystone
     ports:
       - 5601:5601
 
   log-api:
     image: monasca/log-api:master
+    environment:
+      KEYSTONE_URI: http://192.168.10.6/identity
+      KEYSTONE_ADMIN_USER: admin
+      KEYSTONE_ADMIN_PASSWORD: secretadmin
     depends_on:
-      - keystone
+      # - keystone
       - zookeeper
       - kafka
       - memcached

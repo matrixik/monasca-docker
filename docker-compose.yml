@@ -28,6 +28,9 @@ services:
     image: monasca/agent-forwarder:${MON_AGENT_FORWARDER_VERSION}
     environment:
       NON_LOCAL_TRAFFIC: "true"
+      OS_AUTH_URL: http://192.168.10.6/identity/v3
+      OS_USERNAME: monasca-agent
+      OS_PASSWORD: password
 
   agent-collector:
     image: monasca/agent-collector:${MON_AGENT_COLLECTOR_VERSION}
@@ -36,9 +39,16 @@ services:
       FORWARDER_URL: "http://agent-forwarder:17123"
       CADVISOR: "true"
       CADVISOR_URL: "http://cadvisor:8080/"
+      OS_AUTH_URL: http://192.168.10.6/identity/v3
+      OS_USERNAME: monasca-agent
+      OS_PASSWORD: password
 
   alarms:
     image: monasca/alarms:${MON_ALARMS_VERSION}
+    environment:
+      OS_AUTH_URL: http://192.168.10.6/identity/v3
+      OS_USERNAME: mini-mon
+      OS_PASSWORD: password
 
   zookeeper:
     image: zookeeper:${ZOOKEEPER_VERSION}
@@ -72,21 +82,21 @@ services:
       MYSQL_INIT_DISABLE_REMOTE_ROOT: "false"
       MYSQL_INIT_RANDOM_PASSWORD: "false"
 
-  keystone:
-    image: monasca/keystone:${MON_KEYSTONE_VERSION}
-    environment:
-      KEYSTONE_HOST: keystone
-      KEYSTONE_PASSWORD: secretadmin
-      KEYSTONE_DATABASE_BACKEND: mysql
-      KEYSTONE_MYSQL_HOST: mysql
-      KEYSTONE_MYSQL_USER: keystone
-      KEYSTONE_MYSQL_PASSWORD: keystone
-      KEYSTONE_MYSQL_DATABASE: keystone
-    depends_on:
-      - mysql
-    ports:
-      - "5000:5000"
-      - "35357:35357"
+  # keystone:
+  #   image: monasca/keystone:${MON_KEYSTONE_VERSION}
+  #   environment:
+  #     KEYSTONE_HOST: keystone
+  #     KEYSTONE_PASSWORD: secretadmin
+  #     KEYSTONE_DATABASE_BACKEND: mysql
+  #     KEYSTONE_MYSQL_HOST: mysql
+  #     KEYSTONE_MYSQL_USER: keystone
+  #     KEYSTONE_MYSQL_PASSWORD: keystone
+  #     KEYSTONE_MYSQL_DATABASE: keystone
+  #   depends_on:
+  #     - mysql
+  #   ports:
+  #     - "5000:5000"
+  #     - "35357:35357"
 
   monasca-sidecar:
     image: timothyb89/monasca-sidecar:${MON_SIDECAR_VERSION}
@@ -95,9 +105,13 @@ services:
     image: monasca/api:${MON_API_VERSION}
     environment:
       SIDECAR_URL: http://monasca-sidecar:4888/v1/ingest
+      KEYSTONE_IDENTITY_URI: http://192.168.10.6/identity
+      KEYSTONE_AUTH_URI: http://192.168.10.6/identity
+      KEYSTONE_ADMIN_USER: admin
+      KEYSTONE_ADMIN_PASSWORD: secretadmin
     depends_on:
       - influxdb
-      - keystone
+      # - keystone
       - mysql
       - zookeeper
       - kafka
@@ -140,13 +154,13 @@ services:
       GF_USERS_ALLOW_SIGN_UP: "true"
       GF_USERS_ALLOW_ORG_CREATE: "true"
       GF_AUTH_KEYSTONE_ENABLED: "true"
-      GF_AUTH_KEYSTONE_AUTH_URL: http://keystone:5000
+      GF_AUTH_KEYSTONE_AUTH_URL: http://192.168.10.6/identity
       GF_AUTH_KEYSTONE_VERIFY_SSL_CERT: "false"
       GF_AUTH_KEYSTONE_DEFAULT_DOMAIN: "Default"
     ports:
       - "3000:3000"
     depends_on:
-      - keystone
+      # - keystone
       - monasca
 
   grafana-init:

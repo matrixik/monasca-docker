@@ -216,6 +216,8 @@ services:
     environment:
       GRAFANA_USERNAME: ${MON_GRAFANA_USERNAME}
       GRAFANA_PASSWORD: ${MON_GRAFANA_PASSWORD}
+      GRAFANA_ADMIN_USERNAME: ${MON_KEYSTONE_ADMIN_USER}
+      GRAFANA_ADMIN_PASSWORD: ${MON_KEYSTONE_ADMIN_PASSWORD}
       LOGSTASH_FIELDS: "service=grafana-init"
     depends_on:
       - grafana

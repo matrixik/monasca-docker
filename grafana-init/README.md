@@ -42,8 +42,10 @@ Configuration
 | `GRAFANA_URL`      | `http://grafana:3000`  | Location of Grafana server      |
 | `GRAFANA_USERNAME` | `mini-mon`             | Agent Keystone username         |
 | `GRAFANA_PASSWORD` | `password`             | Agent Keystone password         |
-| `GRAFANA_USERS`    | `'[{"user": GRAFANA_USERNAME, "password": GRAFANA_PASSWORD, "email": ""}]'` | Agent Keystone users. Default datasource and dashboard are created for multiple users if this variable is set as proper JSON format. e.g. `'[{"user": "mini-mon", "password": "password", "email": ""}, {"user": "username", "password": "password", "email": ""}]'`. Default value is overwritten by `GRAFANA_USERNAME` and `GRAFANA_PASSWORD`.  **NOTE: Set this variable in String type** |
+| `GRAFANA_USERS`    | `'[{"user": GRAFANA_USERNAME, "password": GRAFANA_PASSWORD, "email": "", "project": "mini-mon", "domain": "Default"}]'` | Agent Keystone users. Read more in [Grafana users](#grafana-users) **NOTE: Set this variable in String type** |
 | `DATASOURCE_TYPE`  | `monasca`              | Agent Keystone user domain      |
+| `GRAFANA_ADMIN_USERNAME`  | `admin`         | Agent Keystone admin username   |
+| `GRAFANA_ADMIN_PASSWORD`  | `password`      | Agent Keystone admin username   |
 | `DATASOURCE_URL`   | `http://monasca:8070/` | Agent Keystone project name     |
 | `DATASOURCE_ACCESS_MODE` | `proxy`          | Grafana access mode string      |
 | `DASHBOARDS_DIR`   | `/dashboards.d`        | Directory to scan for .json dashboards |
@@ -51,6 +53,20 @@ Configuration
 Note that the only datasource type supported at the moment is `monasca`. Other
 datasources should be simple to implement as needed by adding logic to
 `create_datasource_payload()` in [`grafana.py`][6].
+
+### Grafana users
+
+`GRAFANA_USERS`
+
+Default data source and dashboard are created for multiple
+users if this variable is set as proper JSON format. e.g.
+`'[{"user": "mini-mon", "password": "password", "email": ""}, {"user": "username", "password": "password", "email": ""}]'`.
+Default value is overwritten by `GRAFANA_USERNAME` and `GRAFANA_PASSWORD`.
+
+`GRAFANA_ADMIN_USERNAME` and `GRAFANA_ADMIN_PASSWORD`
+
+Grafan admin user is need to set proper organization for each user.
+
 
 ### Custom Dashboards
 

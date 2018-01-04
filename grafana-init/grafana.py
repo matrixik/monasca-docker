@@ -19,6 +19,7 @@ import json
 import logging
 import os
 import time
+import urllib
 
 from requests import Session, RequestException
 
@@ -30,7 +31,15 @@ logger = logging.getLogger(__name__)
 GRAFANA_URL = os.environ.get('GRAFANA_URL', 'http://grafana:3000')
 GRAFANA_USERNAME = os.environ.get('GRAFANA_USERNAME', 'mini-mon')
 GRAFANA_PASSWORD = os.environ.get('GRAFANA_PASSWORD', 'password')
-GRAFANA_USERS = [{'user': GRAFANA_USERNAME, 'password': GRAFANA_PASSWORD, 'email': ''}]
+GRAFANA_ADMIN_USERNAME = os.environ.get('GRAFANA_ADMIN_USERNAME', 'admin')
+GRAFANA_ADMIN_PASSWORD = os.environ.get('GRAFANA_ADMIN_PASSWORD', 'password')
+GRAFANA_USERS = [{
+    'user': GRAFANA_USERNAME,
+    'password': GRAFANA_PASSWORD,
+    'email': '',
+    'project': 'mini-mon',
+    'domain': 'Default',
+}]
 
 DATASOURCE_NAME = os.environ.get('DATASOURCE_NAME', 'monasca')
 DATASOURCE_URL = os.environ.get('DATASOURCE_URL', 'http://monasca:8070/')
@@ -73,10 +82,34 @@ def create_login_payload():
     return grafana_users
 
 
+def create_admin_login_payload():
+    return {
+        'user': GRAFANA_ADMIN_USERNAME,
+        'password': GRAFANA_ADMIN_PASSWORD,
+        'email': ''
+    }
+
+
 @retry(retries=24, delay=5.0)
 def login(session, user):
     r = session.post('{url}/login'.format(url=GRAFANA_URL),
                      json=user,
+                     timeout=5)
+    r.raise_for_status()
+
+
+@retry(retries=12, delay=5.0)
+def change_user_context(admin_session, user_session, organisation):
+    org = admin_session.get('{url}/api/orgs/name/{org_name}'.format(
+        url=GRAFANA_URL, org_name=urllib.quote(organisation.encode('utf8'))
+    ), timeout=5)
+    org.raise_for_status()
+
+    org_id = json.loads(org.text)['id']
+    logging.debug('Organisation "%s" id = %r', organisation, org_id)
+
+    r = user_session.post('{url}/api/user/using/{org}'.
+                     format(url=GRAFANA_URL, org=org_id),
                      timeout=5)
     r.raise_for_status()
 
@@ -127,6 +160,9 @@ def create_dashboard_payload(json_path):
 
 
 def main():
+    admin_session = Session()
+    login(admin_session, create_admin_login_payload())
+
     for user in create_login_payload():
         logging.info('Opening a Grafana session...')
         session = Session()
@@ -141,6 +177,13 @@ def main():
                          json=create_datasource_payload())
         logging.debug('Response: %r', r.json())
         r.raise_for_status()
+
+        if (user['project'] != '') and (user['domain'] != ''):
+            # Grafana org name is created from Kestone project+"@"+domain
+            org_name = user['project'] + '@' + user['domain']
+            logging.info('Setting user "%s" organisation to "%s"',
+                user['user'], org_name)
+            change_user_context(admin_session, session, org_name)
 
         for path in sorted(glob.glob('{dir}/*.json'.format(dir=DASHBOARDS_DIR))):
             logging.info('Creating dashboard from file: {path}'.format(path=path))

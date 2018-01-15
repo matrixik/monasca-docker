@@ -172,18 +172,18 @@ def main():
             logging.info('Grafana has already been initialized, skipping!')
             return
 
-        logging.info('Attempting to add configured datasource...')
-        r = session.post('{url}/api/datasources'.format(url=GRAFANA_URL),
-                         json=create_datasource_payload())
-        logging.debug('Response: %r', r.json())
-        r.raise_for_status()
-
         if (user['project'] != '') and (user['domain'] != ''):
             # Grafana org name is created from Kestone project+"@"+domain
             org_name = user['project'] + '@' + user['domain']
             logging.info('Setting user "%s" organisation to "%s"',
                 user['user'], org_name)
             change_user_context(admin_session, session, org_name)
+
+        logging.info('Attempting to add configured datasource...')
+        r = session.post('{url}/api/datasources'.format(url=GRAFANA_URL),
+                     json=create_datasource_payload())
+        logging.debug('Response: %r', r.json())
+        r.raise_for_status()
 
         for path in sorted(glob.glob('{dir}/*.json'.format(dir=DASHBOARDS_DIR))):
             logging.info('Creating dashboard from file: {path}'.format(path=path))

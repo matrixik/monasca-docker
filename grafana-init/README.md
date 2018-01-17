@@ -61,7 +61,9 @@ datasources should be simple to implement as needed by adding logic to
 Default data source and dashboard are created for multiple
 users if this variable is set as proper JSON format. e.g.
 `'[{"user": "mini-mon", "password": "password", "email": "", "project": "mini-mon", "domain": "Default"}, {"user": "other-user", "password": "password", "email": "", "project": "monasca", "domain": "Default"}]'`.
-Default value is overwritten by `GRAFANA_USERNAME` and `GRAFANA_PASSWORD`.
+
+When `GRAFANA_USERS` is not overwritten and you are using only one user you
+can configure his details with `GRAFANA_USERNAME` and `GRAFANA_PASSWORD`.
 
 `GRAFANA_ADMIN_USERNAME` and `GRAFANA_ADMIN_PASSWORD`
 

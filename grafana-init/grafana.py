@@ -161,7 +161,8 @@ def create_dashboard_payload(json_path):
 
 def main():
     admin_session = Session()
-    login(admin_session, create_admin_login_payload())
+    admin_user = create_admin_login_payload()
+    login(admin_session, admin_user)
 
     for user in create_login_payload():
         logging.info('Opening a Grafana session...')
@@ -194,6 +195,9 @@ def main():
 
         logging.info('Ending %r session...', user.get('user'))
         session.get('{url}/logout'.format(url=GRAFANA_URL))
+
+    logging.info('Ending %r session...', admin_user.get('user'))
+    admin_session.get('{url}/logout'.format(url=GRAFANA_URL))
 
     logging.info('Finished successfully.')
 

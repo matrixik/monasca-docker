@@ -29,13 +29,11 @@ logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
 
 GRAFANA_URL = os.environ.get('GRAFANA_URL', 'http://grafana:3000')
-GRAFANA_USERNAME = os.environ.get('GRAFANA_USERNAME', 'mini-mon')
-GRAFANA_PASSWORD = os.environ.get('GRAFANA_PASSWORD', 'password')
 GRAFANA_ADMIN_USERNAME = os.environ.get('GRAFANA_ADMIN_USERNAME', 'admin')
 GRAFANA_ADMIN_PASSWORD = os.environ.get('GRAFANA_ADMIN_PASSWORD', 'password')
 GRAFANA_USERS = [{
-    'user': GRAFANA_USERNAME,
-    'password': GRAFANA_PASSWORD,
+    'user': "mini-mon",
+    'password': "password",
     'email': '',
     'project': 'mini-mon',
     'domain': 'Default',
@@ -109,8 +107,8 @@ def change_user_context(admin_session, user_session, organisation):
     logging.debug('Organisation "%s" id = %r', organisation, org_id)
 
     r = user_session.post('{url}/api/user/using/{org}'.
-                     format(url=GRAFANA_URL, org=org_id),
-                     timeout=5)
+                          format(url=GRAFANA_URL, org=org_id),
+                          timeout=5)
     r.raise_for_status()
 
 
@@ -177,12 +175,12 @@ def main():
             # Grafana org name is created from Kestone project+"@"+domain
             org_name = user['project'] + '@' + user['domain']
             logging.info('Setting user "%s" organisation to "%s"',
-                user['user'], org_name)
+                         user['user'], org_name)
             change_user_context(admin_session, session, org_name)
 
         logging.info('Attempting to add configured datasource...')
         r = session.post('{url}/api/datasources'.format(url=GRAFANA_URL),
-                     json=create_datasource_payload())
+                         json=create_datasource_payload())
         logging.debug('Response: %r', r.json())
         r.raise_for_status()
 
@@ -200,6 +198,7 @@ def main():
     admin_session.get('{url}/logout'.format(url=GRAFANA_URL))
 
     logging.info('Finished successfully.')
+
 
 if __name__ == '__main__':
     main()

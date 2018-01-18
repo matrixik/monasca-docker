@@ -40,9 +40,7 @@ Configuration
 |--------------------|------------------------|---------------------------------|
 | `LOG_LEVEL`        | `INFO`                 | Logging level, e.g. `DEBUG`     |
 | `GRAFANA_URL`      | `http://grafana:3000`  | Location of Grafana server      |
-| `GRAFANA_USERNAME` | `mini-mon`             | Agent Keystone username         |
-| `GRAFANA_PASSWORD` | `password`             | Agent Keystone password         |
-| `GRAFANA_USERS`    | `'[{"user": GRAFANA_USERNAME, "password": GRAFANA_PASSWORD, "email": "", "project": "mini-mon", "domain": "Default"}]'` | Agent Keystone users. Read more in [Grafana users](#grafana-users) **NOTE: Set this variable in String type** |
+| `GRAFANA_USERS`    | `'[{"user": "mini-mon", "password": "password", "email": "", "project": "mini-mon", "domain": "Default"}]'` | Agent Keystone users configuration. Read more in [Grafana users](#grafana-users) **NOTE: Set this variable as String type** |
 | `DATASOURCE_TYPE`  | `monasca`              | Agent Keystone user domain      |
 | `GRAFANA_ADMIN_USERNAME`  | `admin`         | Agent Keystone admin username   |
 | `GRAFANA_ADMIN_PASSWORD`  | `password`      | Agent Keystone admin username   |
@@ -60,10 +58,13 @@ datasources should be simple to implement as needed by adding logic to
 
 Default data source and dashboard are created for multiple
 users if this variable is set as proper JSON format. e.g.
-`'[{"user": "mini-mon", "password": "password", "email": "", "project": "mini-mon", "domain": "Default"}, {"user": "other-user", "password": "password", "email": "", "project": "monasca", "domain": "Default"}]'`.
-
-When `GRAFANA_USERS` is not overwritten and you are using only one user you
-can configure his details with `GRAFANA_USERNAME` and `GRAFANA_PASSWORD`.
+```
+'[{"user": "mini-mon", "password": "password", "email": "", "project": "mini-mon", "domain": "Default"}, {"user": "other-user", "password": "password", "email": "", "project": "monasca", "domain": "Default"}]'
+```
+In the same place you could provide user project and domain that will be used
+to set proper organization in Grafana. If you does not provide them dashboards
+will be uploaded to random organization if user is assigned to more than one
+(that's how Grafana API is doing by default).
 
 `GRAFANA_ADMIN_USERNAME` and `GRAFANA_ADMIN_PASSWORD`
 

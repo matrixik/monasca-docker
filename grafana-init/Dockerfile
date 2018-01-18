@@ -2,8 +2,6 @@ from alpine:3.5
 
 env LOG_LEVEL=INFO \
   GRAFANA_URL=http://grafana:3000 \
-  GRAFANA_USERNAME=mini-mon \
-  GRAFANA_PASSWORD=password \
   GRAFANA_ADMIN_USERNAME=admin \
   GRAFANA_ADMIN_PASSWORD=password \
   DATASOURCE_TYPE=monasca \
